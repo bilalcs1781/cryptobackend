@@ -15,11 +15,20 @@ import { CryptoModule } from './crypto/crypto.module';
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri:
+      useFactory: async (configService: ConfigService) => {
+        const uri =
           configService.get<string>('MONGODB_URI') ||
-          'mongodb://localhost:27017/demo-backend',
-      }),
+          'mongodb://localhost:27017/demo-backend';
+
+        return {
+          uri,
+          retryWrites: true,
+          w: 'majority',
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 45000,
+          connectTimeoutMS: 10000,
+        };
+      },
       inject: [ConfigService],
     }),
     UsersModule,
