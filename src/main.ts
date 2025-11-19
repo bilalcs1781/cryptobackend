@@ -2,9 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import { INestApplication } from '@nestjs/common';
+
+let app: INestApplication;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  app = await NestFactory.create(AppModule, new ExpressAdapter());
 
   // Enable CORS - Allow all origins for development
   app.enableCors({
@@ -53,9 +57,20 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.PORT ?? 3002;
-  await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
-  console.log(`Swagger documentation: http://localhost:${port}/api`);
+  // Only listen if not in serverless environment
+  if (!process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.NETLIFY) {
+    const port = process.env.PORT ?? 3002;
+    await app.listen(port);
+    console.log(`Application is running on: http://localhost:${port}`);
+    console.log(`Swagger documentation: http://localhost:${port}/api`);
+  } else {
+    await app.init();
+    console.log('Serverless app initialized');
+  }
 }
+
+// Initialize app
 bootstrap();
+
+// Export for serverless environments
+export { app, bootstrap };
