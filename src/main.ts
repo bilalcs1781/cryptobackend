@@ -17,16 +17,7 @@ async function bootstrap() {
   app = await NestFactory.create(AppModule, new ExpressAdapter());
 
   app.enableCors({
-    origin: [
-      'https://cryptobackend-8xgf.vercel.app',
-      /^https:\/\/cryptobackend-8xgf.*\.vercel\.app$/,
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:5173',
-      'http://localhost:5174',
-      /^https?:\/\/localhost(:\d+)?$/,
-    ],
-    credentials: true,
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',
@@ -34,9 +25,6 @@ async function bootstrap() {
       'Accept',
       'X-Requested-With',
     ],
-    exposedHeaders: ['Content-Type', 'Authorization'],
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
   });
 
   app.useGlobalPipes(
