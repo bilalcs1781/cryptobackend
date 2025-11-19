@@ -68,11 +68,35 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {
+
+  // Configure Swagger for serverless (Vercel) - use CDN for static assets
+  const isServerless =
+    process.env.VERCEL ||
+    process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.env.NETLIFY;
+
+  const swaggerOptions: any = {
+    customCss: `
+      .swagger-ui .topbar { display: none; }
+    `,
+    customSiteTitle: 'Demo Backend API',
+    customfavIcon: 'https://swagger.io/favicon-32x32.png',
     swaggerOptions: {
       persistAuthorization: true,
     },
-  });
+  };
+
+  // Use CDN for static assets in serverless environments
+  if (isServerless) {
+    swaggerOptions.customCssUrl =
+      'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui.css';
+    swaggerOptions.customJs = [
+      'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-bundle.js',
+      'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js',
+    ];
+  }
+
+  SwaggerModule.setup('api', app, document, swaggerOptions);
 
   await app.init();
   cachedApp = app.getHttpAdapter().getInstance() as Express;
