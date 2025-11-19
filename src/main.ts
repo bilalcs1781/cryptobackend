@@ -16,9 +16,18 @@ async function bootstrap() {
 
   app = await NestFactory.create(AppModule, new ExpressAdapter());
 
-  // Enable CORS - Allow all origins for development
+  // Enable CORS
   app.enableCors({
-    origin: true, // Allow all origins
+    origin: [
+      'https://cryptobackend-8xgf-cs6lja0iu-bilalcs1781s-projects.vercel.app',
+      'https://cryptobackend-8xgf.vercel.app',
+      /^https:\/\/cryptobackend-8xgf.*\.vercel\.app$/,
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:5173',
+      'http://localhost:5174',
+      /^https?:\/\/localhost(:\d+)?$/,
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
