@@ -16,7 +16,6 @@ async function bootstrap() {
 
   app = await NestFactory.create(AppModule, new ExpressAdapter());
 
-  // Enable CORS
   app.enableCors({
     origin: [
       'https://cryptobackend-8xgf.vercel.app',
@@ -40,7 +39,6 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  // Enable validation pipes
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -62,11 +60,11 @@ async function bootstrap() {
     .addTag('users')
     .addTag('auth')
     .addTag('crypto')
+    .addTag('payments')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  // Configure Swagger for serverless (Vercel) - use CDN for static assets
   const isServerless =
     process.env.VERCEL ||
     process.env.AWS_LAMBDA_FUNCTION_NAME ||
@@ -83,7 +81,6 @@ async function bootstrap() {
     },
   };
 
-  // Use CDN for static assets in serverless environments
   if (isServerless) {
     swaggerOptions.customCssUrl =
       'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui.css';
@@ -100,13 +97,11 @@ async function bootstrap() {
   return cachedApp;
 }
 
-// For serverless (Vercel) - default export must be a function
 const handler = async (req: any, res: any) => {
   const expressApp = await bootstrap();
   return expressApp(req, res);
 };
 
-// Only start server if not in serverless environment
 if (
   !process.env.VERCEL &&
   !process.env.AWS_LAMBDA_FUNCTION_NAME &&
@@ -120,5 +115,4 @@ if (
   });
 }
 
-// Default export for Vercel serverless functions
 export default handler;
