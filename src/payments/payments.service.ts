@@ -19,6 +19,10 @@ export class PaymentsService {
     private transactionModel: Model<TransactionDocument>,
     private configService: ConfigService,
   ) {
+    this.initializeStripe();
+  }
+
+  private initializeStripe() {
     const stripeSecretKey =
       process.env.STRIPE_SECRET_KEY ||
       this.configService.get<string>('STRIPE_SECRET_KEY');
@@ -27,11 +31,19 @@ export class PaymentsService {
       console.warn(
         '⚠️  STRIPE_SECRET_KEY is not configured. Payment features will not work.',
       );
+      console.warn('Environment check:', {
+        hasProcessEnv: !!process.env.STRIPE_SECRET_KEY,
+        hasConfigService: !!this.configService.get<string>('STRIPE_SECRET_KEY'),
+        allEnvKeys: Object.keys(process.env).filter((key) =>
+          key.includes('STRIPE'),
+        ),
+      });
       this.stripe = null as any;
     } else {
       this.stripe = new Stripe(stripeSecretKey, {
         apiVersion: '2025-11-17.clover',
       });
+      console.log('✅ Stripe initialized successfully');
     }
   }
 
@@ -40,10 +52,13 @@ export class PaymentsService {
     createPaymentIntentDto: CreatePaymentIntentDto,
   ) {
     if (!this.stripe) {
-      throw new HttpException(
-        'Stripe is not configured. Please set STRIPE_SECRET_KEY.',
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
+      this.initializeStripe();
+      if (!this.stripe) {
+        throw new HttpException(
+          'Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.',
+          HttpStatus.SERVICE_UNAVAILABLE,
+        );
+      }
     }
 
     try {
@@ -94,10 +109,13 @@ export class PaymentsService {
 
   async handleWebhook(signature: string, payload: Buffer) {
     if (!this.stripe) {
-      throw new HttpException(
-        'Stripe is not configured. Please set STRIPE_SECRET_KEY.',
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
+      this.initializeStripe();
+      if (!this.stripe) {
+        throw new HttpException(
+          'Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.',
+          HttpStatus.SERVICE_UNAVAILABLE,
+        );
+      }
     }
 
     const webhookSecret =
