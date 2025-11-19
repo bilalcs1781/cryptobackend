@@ -3,13 +3,10 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "framework": null,
-  "functions": {
-    "api/index.js": {}
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/api"
+      "source": "/(.*)",
+      "destination": "/api"
     }
   ]
 }
