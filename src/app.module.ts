@@ -12,13 +12,21 @@ import { CryptoModule } from './crypto/crypto.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      ignoreEnvFile: process.env.VERCEL === '1', // Ignore .env file in Vercel
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const uri =
+          process.env.MONGODB_URI ||
           configService.get<string>('MONGODB_URI') ||
           'mongodb://localhost:27017/demo-backend';
+
+        // Log connection attempt (without sensitive data)
+        if (process.env.VERCEL) {
+          console.log('Connecting to MongoDB...');
+          console.log('URI configured:', uri ? 'Yes' : 'No');
+        }
 
         return {
           uri,

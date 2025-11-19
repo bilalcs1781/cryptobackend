@@ -49,7 +49,9 @@ async function bootstrap() {
     .setTitle('Demo Backend API')
     .setDescription('API documentation for Demo Backend')
     .setVersion('1.0')
-    .addServer('https://demodravis1.netlify.app')
+    .addServer(
+      'https://cryptobackend-8xgf-cs6lja0iu-bilalcs1781s-projects.vercel.app',
+    )
     .addServer('http://localhost:3002', 'Local development')
     .addTag('users')
     .addTag('auth')
