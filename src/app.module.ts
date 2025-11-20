@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { PaymentsModule } from './payments/payments.module';
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { PaymentsModule } from './payments/payments.module';
     AuthModule,
     CryptoModule,
     PaymentsModule,
+    WalletModule,
   ],
   controllers: [AppController],
   providers: [AppService],
