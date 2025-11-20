@@ -6,10 +6,8 @@ import {
   MinLength,
   IsOptional,
   IsNumber,
-  IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserRole } from '../../schemas/user.schema';
 
 export class SignupDto {
   @ApiProperty({
@@ -56,15 +54,4 @@ export class SignupDto {
   @IsOptional()
   @IsString()
   address?: string;
-
-  @ApiProperty({
-    description: 'User role (defaults to user)',
-    example: 'user',
-    enum: UserRole,
-    default: UserRole.USER,
-    required: false,
-  })
-  @IsOptional()
-  @IsEnum(UserRole)
-  role?: UserRole;
 }

@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { User, UserDocument } from '../schemas/user.schema';
+import { User, UserDocument, UserRole } from '../schemas/user.schema';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 
@@ -32,6 +32,7 @@ export class AuthService {
       ...rest,
       email,
       password: hashedPassword,
+      role: UserRole.USER, // Always set to USER, cannot be changed during signup
     });
     await user.save();
 

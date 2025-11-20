@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AdminGuard } from './guards/admin.guard';
+import { AdminInitService } from './admin-init.service';
 import { User, UserSchema } from '../schemas/user.schema';
 
 @Module({
@@ -23,7 +24,7 @@ import { User, UserSchema } from '../schemas/user.schema';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, AdminGuard],
+  providers: [AuthService, JwtStrategy, AdminGuard, AdminInitService],
   exports: [AuthService, AdminGuard],
 })
 export class AuthModule {}
