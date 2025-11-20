@@ -1,10 +1,5 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -44,11 +39,11 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiOperation({ summary: 'Login user' })
+  @ApiOperation({ summary: 'Login user or admin (same endpoint for both)' })
   @ApiBody({ type: LoginDto })
   @ApiResponse({
     status: 200,
-    description: 'User successfully logged in',
+    description: 'User or admin successfully logged in',
     schema: {
       type: 'object',
       properties: {
@@ -60,6 +55,7 @@ export class AuthController {
             email: { type: 'string' },
             age: { type: 'number' },
             address: { type: 'string' },
+            role: { type: 'string', enum: ['user', 'admin'] },
           },
         },
         token: { type: 'string' },
@@ -72,5 +68,3 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 }
-
-
