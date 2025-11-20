@@ -9,6 +9,10 @@ import {
   TransactionStatus,
 } from '../schemas/transaction.schema';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
+import {
+  PaginationQueryDto,
+  PaginatedResponse,
+} from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -168,12 +172,31 @@ export class PaymentsService {
     }
   }
 
-  async getUserTransactions(userId: string) {
-    const transactions = await this.transactionModel
-      .find({ userId: new Types.ObjectId(userId) })
-      .sort({ createdAt: -1 })
-      .exec();
+  async getUserTransactions(
+    userId: string,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<PaginatedResponse<TransactionDocument>> {
+    const page = paginationQuery.page || 1;
+    const limit = paginationQuery.limit || 10;
+    const skip = (page - 1) * limit;
 
-    return transactions;
+    const [data, total] = await Promise.all([
+      this.transactionModel
+        .find({ userId: new Types.ObjectId(userId) })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.transactionModel
+        .countDocuments({ userId: new Types.ObjectId(userId) })
+        .exec(),
+    ]);
+
+    return {
+      data,
+      page,
+      limit,
+      total,
+    };
   }
 }

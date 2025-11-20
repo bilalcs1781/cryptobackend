@@ -6,6 +6,7 @@ import {
   Headers,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import type { RawBodyRequest } from '@nestjs/common';
 import {
@@ -18,6 +19,7 @@ import { PaymentsService } from './payments.service';
 import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { GetUserId } from '../auth/decorators/get-user-id.decorator';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @ApiTags('payments')
 @Controller('payments')
@@ -68,13 +70,43 @@ export class PaymentsController {
   @Get('transactions')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get user transaction history' })
+  @ApiOperation({ summary: 'Get user transaction history with pagination' })
   @ApiResponse({
     status: 200,
-    description: 'Return user transaction history.',
+    description: 'Return paginated user transaction history.',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              _id: { type: 'string' },
+              userId: { type: 'string' },
+              stripePaymentIntentId: { type: 'string' },
+              amount: { type: 'number' },
+              currency: { type: 'string' },
+              status: { type: 'string' },
+              type: { type: 'string' },
+              description: { type: 'string' },
+              metadata: { type: 'object' },
+              createdAt: { type: 'string' },
+              updatedAt: { type: 'string' },
+            },
+          },
+        },
+        page: { type: 'number', example: 1 },
+        limit: { type: 'number', example: 10 },
+        total: { type: 'number', example: 25 },
+      },
+    },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  async getUserTransactions(@GetUserId() userId: string) {
-    return this.paymentsService.getUserTransactions(userId);
+  async getUserTransactions(
+    @GetUserId() userId: string,
+    @Query() paginationQuery: PaginationQueryDto,
+  ) {
+    return this.paymentsService.getUserTransactions(userId, paginationQuery);
   }
 }

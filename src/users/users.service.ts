@@ -4,6 +4,10 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import {
+  PaginationQueryDto,
+  PaginatedResponse,
+} from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,8 +18,24 @@ export class UsersService {
     return createdUser.save();
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+  async findAll(
+    paginationQuery: PaginationQueryDto,
+  ): Promise<PaginatedResponse<User>> {
+    const page = paginationQuery.page || 1;
+    const limit = paginationQuery.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.userModel.find().skip(skip).limit(limit).exec(),
+      this.userModel.countDocuments().exec(),
+    ]);
+
+    return {
+      data,
+      page,
+      limit,
+      total,
+    };
   }
 
   async findOne(id: string): Promise<User | null> {
